@@ -26,7 +26,7 @@ Install
 get sources
 -----------
 
-git clone https://github.com/jssevestre/django-pdf
+git clone https://github.com/bisio/django-pdf
 cd django-pdf
 cp django_pdf to your project or in your PYTHON_PATH
 
