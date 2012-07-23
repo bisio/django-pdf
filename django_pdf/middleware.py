@@ -29,7 +29,7 @@ def fetch_resources(uri, rel):
     return path
 
 
-def transform_to_pdf(response,pdfname):
+def transform_to_pdf(response, pdfname, return_stringIO=False):
     """
     call xhtml2pdf.pisa to convert html responce to pdf
     """
@@ -39,14 +39,23 @@ def transform_to_pdf(response,pdfname):
     #response['Content-Disposition'] = 'attachment; filename=%s.pdf' % pdfname
 
     content = response.content
-    new_response = HttpResponse(content="",mimetype='application/pdf')
-    new_response['Content-Disposition'] = 'attachment; filename=%s.pdf' % pdfname
+
+    if not return_stringIO:
+        new_response = HttpResponse(content="",mimetype='application/pdf')
+        new_response['Content-Disposition'] = 'attachment; filename=%s.pdf' % pdfname
+    else:
+        new_response = StringIO.StringIO()
     
     pdf = pisa.pisaDocument(StringIO.StringIO(content),
                             new_response, link_callback=fetch_resources)
 
     if not pdf.err:
-        return new_response
+        if return_stringIO:
+            pdf = new_response.getvalue()
+            new_response.close()
+            return pdf
+        else:
+            return new_response
     else:
         # TODO return error and redirect to default view
         return HttpResponse('We had some errors in pdfMiddleWare : \
